@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord{% endblock %}
+
+{% block content %}
+<div id="dashboard-container" class="dashboard-container">
+    <header class="header headerMe" id="headerMe">
+        <h1>Tableau de Bord - Surveillance</h1>
+        <div class="global-stats">
+            <div class="stat-card">
+                <span class="stat-value" id="stat-nodes">...</span>
+                <span class="stat-label">Nœuds Actifs</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="stat-alerts">...</span>
+                <span class="stat-label">Dernières ALERTES Affichées<br>(Voir bas de page)</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <div class="map-container card">
+            <h2>Localisation des Nœuds</h2>
+            <div id="mapid" style="height: 400px;"></div>
+        </div>
+
+        <div id="node-list-container" class="node-list-container card">
+            <h2>Liste des Nœuds</h2>
+            <ul id="node-list" class="node-list">
+                <!-- Les nœuds seront insérés ici par JavaScript -->
+                <li class="loading-item">Chargement des nœuds...</li>
+            </ul>
+        </div>
+
+        <div class="details-panel card" id="details-panel">
+            <div class="details-header">
+                <h2 id="details-title">Sélectionnez un Nœud</h2>
+                <button class="close-btn" onclick="closeDetailsPanel()">×</button>
+            </div>
+            
+            <div id="details-content">
+                <p>Cliquez sur un marqueur sur la carte ou sur un nœud dans la liste pour afficher les détails.</p>
+            </div>
+            <h3>Métadonnées Techniques</h3>
+            <table class="metadata-table">
+                <tr><th>IP:</th><td id="meta-ip"></td></tr>
+                <tr><th>MAC:</th><td id="meta-mac"></td></tr>
+                <tr><th>statut</th><td id="statut"></td></tr>
+                <tr><th>Dernière Connexion:</th><td id="meta-last-seen"></td></tr>
+                <tr><th class="trCollapse">Capteurs:</th><td id="capteurs" class="trCollapse"></td></tr>
+            </table>
+
+            <h3>Statistiques Avancées</h3>
+            <div class="stats-summary" id="stats-summary">
+                <!-- Les stats min/max/moy seront insérées ici -->
+            </div>
+            <div id="node-charts" style="display: none;">
+                <h3>Graphiques des Mesures</h3>
+                <div id="node-charts-container" class="charts-container">
+                    <!-- Les graphiques seront insérés dynamiquement ici par JavaScript -->
+                </div>
+                
+                <h3>Alertes Récentes (24h)</h3>
+                <ul id="node-alerts-list" class="alerts-list">
+                    <!-- Les alertes seront insérées ici par JavaScript -->
+                    <li class="no-alert">Aucune alerte récente pour ce nœud.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Passer le rôle de l'utilisateur au script JS
+    const USER_ROLE = "{{ user_role }}";
+</script>
+{% endblock %}

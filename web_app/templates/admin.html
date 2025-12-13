@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<header class="header">
+    <h1>Administration du Système</h1>
+</header>
+
+<div class="admin-tabs">
+    <button class="tab-button active" onclick="openTab(event, 'users-tab')">Gestion des Utilisateurs</button>
+    <button class="tab-button" onclick="openTab(event, 'nodes-tab')">Gestion des Nœuds</button>
+</div>
+
+<div id="users-tab" class="tab-content active bgAdmin">
+    <h2>Gestion des Utilisateurs</h2>
+    <button class="btn-primary buttonCreer" onclick="openCreateUserModal()">Créer un Utilisateur</button>
+    <table class="data-table" id="users-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom d'utilisateur</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Actif</th>
+                <th>Dernière Connexion</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les utilisateurs seront insérés ici par JavaScript -->
+            <tr><td colspan="7">Chargement des utilisateurs...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="nodes-tab" class="tab-content bgAdmin">
+    <h2>Gestion des Nœuds</h2>
+    <button class="btn-primary buttonCreer" onclick="openCreateNodeModal()">Créer un Nœud</button>
+    <table class="data-table" id="admin-nodes-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>MAC</th>
+                <th>IP</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les nœuds seront insérés ici par JavaScript -->
+            <tr><td colspan="6">Chargement des nœuds...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modale de Création/Édition d'Utilisateur -->
+<div id="user-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('user-modal')">&times;</span>
+        <h3 id="modal-title">Créer un Nouvel Utilisateur</h3>
+        <form id="user-form">
+            <input type="hidden" id="user-id">
+            <div class="input-group">
+                <label for="new-username">Nom d'utilisateur</label>
+                <input type="text" id="new-username" required>
+            </div>
+            <div class="input-group">
+                <label for="new-email">Email</label>
+                <input type="email" id="new-email" required>
+            </div>
+            <div class="input-group">
+                <label for="new-password">Mot de passe (laisser vide pour ne pas changer)</label>
+                <input type="password" id="new-password">
+            </div>
+            <div class="input-group">
+                <label for="new-role">Rôle</label>
+                <select id="new-role" required>
+                    <option value="readonly">readonly</option>
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary" id="modal-submit-btn">Créer</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modale de Création/Édition de Nœud -->
+<div id="node-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('node-modal')">&times;</span>
+        <h3 id="node-modal-title">Créer un Nouveau Nœud</h3>
+        <form id="node-form">
+            <input type="hidden" id="node-id">
+            <div class="input-group">
+                <label for="node-name">Nom du Nœud</label>
+                <input type="text" id="node-name" required>
+            </div>
+            <div class="input-group">
+                <label for="node-mac">Adresse MAC</label>
+                <input type="text" id="node-mac" placeholder="AA:BB:CC:DD:EE:FF">
+            </div>
+            <div class="input-group">
+                <label for="node-ip">Adresse IP</label>
+                <input type="text" id="node-ip" placeholder="192.168.1.150">
+            </div>
+            <div class="input-group">
+                <label for="node-localisation">Localisation (Lat, Lon)</label>
+                <input type="text" id="node-localisation" placeholder="45.0, 2.0">
+            </div>
+            <div class="input-group">
+                <label for="node-statut">Statut</label>
+                <select id="node-statut" required>
+                    <option value="actif">Actif</option>
+                    <option value="alerte">Inactif</option>
+                    <option value="inactif">Maintenance</option>
+                    <option value="inactif">Erreur</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary" id="node-modal-submit-btn">Créer</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Le script JS pour l'administration sera dans main.js
+</script>
+{% endblock %}

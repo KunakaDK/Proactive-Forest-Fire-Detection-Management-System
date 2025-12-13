@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Surveillance Feux de Forêt{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Leaflet CSS pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    {% block head %}{% endblock %}
+</head>
+<body id="body">
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="/static/logo.svg" width="60%">
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Tableau de Bord</a></li>
+                    {% if user_role == 'admin' %}
+                    <li><a href="{{ url_for('admin') }}" class="nav-link {% if request.path == '/admin' %}active{% endif %}">Administration</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div class="d3Index">
+                <img src="{% if request.path == '/' %}/static/css/3d1.png{% else %}/static/css/3d2.png{% endif %}" width="{% if request.path == '/' %}60%{% else %}30%{% endif %}">
+            </div>
+            <div class="user-info">
+                <p>Connecté en tant que: <strong>{{ session.get('user_info', {}).get('username', 'Invité') }}</strong></p>
+                <p>Rôle: <strong>{{ session.get('user_info', {}).get('role', 'N/A') }}</strong></p>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Déconnexion</a>
+            </div>
+        </aside>
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Fichier JS principal -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
