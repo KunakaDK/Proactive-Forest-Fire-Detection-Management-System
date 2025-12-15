@@ -1,5 +1,6 @@
 # 🌲 Systeme-de-Detection-et-de-Gestion-Proactive-des-Feux-de-Foret
 -- ML and DataPipeline
+
 An advanced IoT solution for early fire detection in forest or building environments. This system utilizes **Edge Computing** for data acquisition and a **Local Python Gateway** with **Machine Learning (Random Forest)** to filter noise, calibrate sensors, and predict fire risks with high accuracy before logging data to a MySQL database.
 
 ## 🚀 Features
