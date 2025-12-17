@@ -1,123 +1,56 @@
-ML and DataPipeline
-###############################################################################################################################################################
-# 🌲 IoT Intelligent Fire Detection System
+# 🌲 Proactive Forest Fire Detection & Management System
 
-An advanced IoT solution for early fire detection in forest or building environments. This system utilizes **Edge Computing** for data acquisition and a **Local Python Gateway** with **Machine Learning (Random Forest)** to filter noise, calibrate sensors, and predict fire risks with high accuracy before logging data to a MySQL database.
+### End-to-End IoT, Machine Learning, and Web Monitoring Solution
 
-## 🚀 Features
+An advanced full-stack IoT solution designed for early fire detection in forest or building environments. This system integrates Edge Computing for data acquisition, a Machine Learning Gateway for accurate risk prediction, and a secure **Backend-for-Frontend (BFF)** Web Application for real-time visualization and administration.
+
+-----
+
+## 🚀 Key Features
+
+### 🔥 IoT & Machine Learning (Edge & Middleware)
 
   * **Multi-Sensor Data Acquisition:** Real-time monitoring of Temperature, Humidity, and Smoke/Gas levels using ESP32.
-  * **Intelligent Processing:** Uses a **Random Forest Classifier** to distinguish between actual fires and false alarms (e.g., hot days or sensor noise).
+  * **Intelligent Processing:** Utilizes a **Random Forest Classifier** to distinguish between actual fires and false alarms (e.g., hot days vs. combustion).
   * **Auto-Calibration:** Software-based calibration mapping raw sensor values (ADC) to standardized datasets.
   * **Robust Communication:** MQTT protocol (Mosquitto) for reliable low-latency data transmission.
-  * **Centralized Logging:** Stores historical data, risk percentages, and status alerts in a MySQL database.
+  * **Centralized Logging:** Logs raw data, risk probabilities, and alert statuses into a MySQL database.
+
+### 🌐 Web Dashboard (Frontend & BFF)
+
+  * **Secure Proxy Architecture:** Uses a Python/Flask **Backend-for-Frontend** pattern to handle JWT authentication and proxy requests to the backend API.
+  * **Interactive Mapping:** **LeafletJS** integration to visualize sensor nodes and their status (Normal vs. Alert) on a map.
+  * **Real-Time Analytics:** **Chart.js** visualization for historical temperature, humidity, and gas trends.
+  * **Role-Based Administration:** Dedicated Admin panel for managing users and configuring sensor nodes.
 
 -----
 
-## 🛠️ Architecture
+## 🛠️ System Architecture
 
-The system follows a **Pub/Sub** architecture with an intelligent middleware layer.
+The system operates on a modular Pub/Sub and Proxy architecture:
 
-```mermaid
-graph LR
-    A[ESP32 Node] -- MQTT (JSON) --> B(Mosquitto Broker)
-    B -- Subscribe --> C[Python Gateway]
-    C -- Load Model --> D{ML Inference}
-    D -- Prediction --> E[MySQL Database]
-```
-
-1.  **Edge Layer:** ESP32 reads raw analog/digital data.
-2.  **Transport Layer:** Data is serialized to JSON and sent via MQTT.
-3.  **Processing Layer:** Python script loads a pre-trained `.pkl` model, normalizes the data, and predicts fire probability.
-4.  **Storage Layer:** Final structured data is saved for the web dashboard.
+1.  **Edge Layer:** **ESP32** reads raw analog/digital data.
+2.  **Transport Layer:** Data is serialized to JSON and sent via **MQTT**.
+3.  **Processing Layer:** A **Python Gateway** loads a pre-trained `.pkl` model, normalizes data, predicts fire risk, and writes to **MySQL**.
+4.  **API Layer:** A remote REST API exposes the data (running on a VM/Server).
+5.  **Application Layer:** The **Flask BFF** connects the user's browser to the API securely.
 
 -----
 
-## 📦 Hardware Requirements
+## 📦 Requirements
+
+### Hardware
 
   * **Microcontroller:** ESP32 Dev Kit V1
-  * **Gas Sensor:** MQ-2 or MQ-135 (Smoke/LPG/CO)
-  * **Temp/Hum Sensor:** DHT11 or DHT22
-  * **Flame Sensor:** IR Flame Sensor (Optional)
+  * **Sensors:** MQ-2/MQ-135 (Gas), DHT11/DHT22 (Temp/Hum), IR Flame Sensor (Optional)
   * **Connectivity:** Wi-Fi (2.4GHz)
 
------
+### Software & Stack
 
-## 💻 Software Prerequisites
-
-  * **VS Code** with **PlatformIO** Extension (for ESP32).
-  * **Python 3.9+** (for the Gateway).
-  * **Mosquitto MQTT Broker** (running locally or on a server).
-  * **XAMPP / MySQL** (for the database).
-
------
-
-## ⚙️ Installation & Setup
-
-### 1\. Database Setup
-
-Run the following SQL command in your MySQL interface (phpMyAdmin) to create the required table:
-
-```sql
-CREATE DATABASE iot_project;
-USE iot_project;
-
-CREATE TABLE sensor_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    node_id VARCHAR(50),
-    temp_val FLOAT,
-    humidity_val FLOAT,
-    smoke_level FLOAT,
-    fire_risk FLOAT,
-    alert_status VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### 2\. Python Environment (The Brain)
-
-Navigate to the `Server_Side` folder and install dependencies:
-
-```bash
-pip install pandas scikit-learn joblib paho-mqtt mysql-connector-python
-```
-
-**Training the Model:**
-Before running the gateway, you must generate the AI model file.
-
-```bash
-python train_model.py
-```
-
-*Output: `fire_model.pkl` will be created.*
-
-### 3\. ESP32 Firmware
-
-1.  Open the `ESP32_Firmware` folder in **PlatformIO**.
-2.  Edit `src/main.cpp`:
-      * Update `ssid` and `password` with your Wi-Fi credentials.
-      * Update `mqtt_server` with your computer's IP address.
-3.  Upload the code to your board.
-
------
-
-## 🏃‍♂️ Usage
-
-1.  **Start Services:** Ensure Mosquitto and MySQL (XAMPP) are running.
-2.  **Start the Gateway:**
-    ```bash
-    python gateway.py
-    ```
-    *You should see: `✅ Model loaded successfully!` and `📡 Listening...`*
-3.  **Power the ESP32:**
-      * The ESP32 will connect to Wi-Fi and start publishing JSON packets.
-      * The Python terminal will display real-time predictions:
-        ```text
-        [14:05:01] Node: node_01
-        Data -> Gas: 2400 (Calib: 580) | Temp: 45°C
-        🔥 STATUS: FIRE DETECTED! (Confidence: 92.5%)
-        💾 Data saved to Database
-        ```
+  * **Embedded:** VS Code + PlatformIO (C++)
+  * **ML/Gateway:** Python 3.9+, Scikit-learn, Pandas, Paho-MQTT
+  * **Web App:** Python 3.11+ (Flask), HTML5, CSS3, JavaScript (Vanilla)
+  * **Infrastructure:** Mosquitto MQTT Broker, MySQL (XAMPP)
 
 -----
 
@@ -125,19 +58,115 @@ python train_model.py
 
 ```text
 IoT-Fire-Detection/
-├── 📂 ESP32_Firmware/       # Embedded C++ Code
-│   ├── platformio.ini       # Library dependencies
-│   └── src/
-│       └── main.cpp         # Sensor logic & MQTT
+├── 📂 ESP32_Firmware/          # Embedded C++ Code (PlatformIO)
+│   ├── platformio.ini          # Library dependencies
+│   └── src/main.cpp            # Sensor logic & MQTT publishing
 │
-└── 📂 Server_Side/          # Python & ML Logic
-    ├── fire_data.csv        # Dataset for training
-    ├── train_model.py       # Script to create the AI model
-    ├── fire_model.pkl       # Compiled Random Forest Model
-    └── gateway.py           # Main Orchestrator (MQTT + ML + DB)
+├── 📂 Server_Side/             # ML Gateway & Processing
+│   ├── fire_data.csv           # Training dataset
+│   ├── train_model.py          # Script to generate .pkl model
+│   ├── fire_model.pkl          # Compiled Random Forest Model
+│   └── gateway.py              # Orchestrator (MQTT -> ML -> DB)
+│
+└── 📂 fire_monitor_app/        # Web Application (Flask BFF)
+    ├── app.py                  # Server (Proxy, Auth, Routes)
+    ├── static/                 # CSS & JS (Leaflet, Charts)
+    └── templates/              # HTML Templates (Login, Dashboard, Admin)
 ```
 
 -----
-## 📄 License
 
-This project is open-source. Feel free to use and modify.
+## ⚙️ Installation & Setup
+
+### Phase 1: Database & Infrastructure
+
+1.  Ensure **Mosquitto MQTT** is running.
+2.  Start **MySQL** (via XAMPP or service).
+3.  Create the database schema:
+    ```sql
+    CREATE DATABASE iot_project;
+    USE iot_project;
+    CREATE TABLE sensor_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        node_id VARCHAR(50),
+        temp_val FLOAT,
+        humidity_val FLOAT,
+        smoke_level FLOAT,
+        fire_risk FLOAT,
+        alert_status VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+
+### Phase 2: The Gateway (ML Brain)
+
+1.  Navigate to `Server_Side` and install dependencies:
+    ```bash
+    pip install pandas scikit-learn joblib paho-mqtt mysql-connector-python
+    ```
+2.  Train the AI model:
+    ```bash
+    python train_model.py
+    # Output: fire_model.pkl created.
+    ```
+3.  Start the Gateway:
+    ```bash
+    python gateway.py
+    # Output: 📡 Listening...
+    ```
+
+### Phase 3: The Edge (ESP32)
+
+1.  Open `ESP32_Firmware` in PlatformIO.
+2.  Edit `src/main.cpp`: Update `ssid`, `password`, and `mqtt_server`.
+3.  Upload firmware to the ESP32.
+      * *Verification:* The Python Gateway terminal should show incoming data and fire predictions.
+
+### Phase 4: The Web Application
+
+1.  Navigate to `fire_monitor_app`:
+    ```bash
+    cd fire_monitor_app
+    pip install -r requirements.txt
+    ```
+    *(Requires Flask, requests)*
+2.  Start the Web Server:
+    ```bash
+    python app.py
+    ```
+3.  Access the dashboard at **`http://127.0.0.1:5001`**.
+
+-----
+
+## 🏃‍♂️ Usage & Testing
+
+### 1\. Monitoring
+
+Once logged in, the **Dashboard** will display:
+
+  * **Map:** Markers indicating sensor locations.
+  * **Status:** Green (Normal) or Red (Fire Detected).
+  * **Live Graphs:** Click on a node to see historical data for Gas, Temp, and Humidity.
+
+### 2\. Default Credentials
+
+To access the Admin panel or Login:
+
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin` | `admin` |
+
+### 3\. API Configuration
+
+The Web App acts as a proxy. Ensure the remote API is reachable at the address defined in `app.py`:
+
+> **Default Remote API:** `http://192.168.1.100:5000/api`
+
+
+## 🛡️ Security Note
+
+The Web App utilizes a **JWT Proxy** pattern.
+
+  * The frontend **never** stores the JWT in LocalStorage.
+  * The Flask server manages the session and injects the `Authorization: Bearer <token>` header into every request sent to the Remote API.
+  * If the API returns `401 Unauthorized`, the user is automatically logged out.
