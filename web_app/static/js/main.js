@@ -108,13 +108,36 @@ function safeToFixed(value, digits) {
  */
 async function fetchSensorMap() {
     try {
+        // 1. Récupération de la liste brute depuis l'API
         const sensors = await apiFetch('capteurs');
+        
+        // 2. Pré-traitement pour créer 'type2' unique
+        const typeCounts = {}; // Compteur d'occurrences
+
+        sensors.forEach(sensor => {
+            const originalType = sensor.type;
+
+            // On initialise type2 avec la valeur originale
+            if (typeCounts[originalType]) {
+                // C'est un doublon ! On incrémente
+                typeCounts[originalType]++;
+                // On crée le nom unique dans type2
+                sensor.type2 = `${originalType} ${typeCounts[originalType]}`;
+            } else {
+                // Premier passage
+                typeCounts[originalType] = 1;
+                // Le premier garde le nom simple
+                sensor.type2 = originalType;
+            }
+        });
+
+        // 3. Création du mappage en utilisant type2 comme clé
         sensorMap = sensors.reduce((map, sensor) => {
-            // Utilisation du type comme clé, car c'est ce qui est le plus fiable pour l'historique
-            map[sensor.type] = sensor.id;
+            // Ici on utilise sensor.type2 pour la clé du dictionnaire
+            map[sensor.type2] = sensor.id;
             return map;
         }, {});
-        console.log("Carte des capteurs chargée:", sensorMap);
+        //console.log("Carte des capteurs chargée:", sensorMap);
     } catch (error) {
         console.error("Erreur lors du chargement de la carte des capteurs:", error);
     }
@@ -128,17 +151,29 @@ async function fetchSensorMap() {
 function getCapteurInfoFromNom(nomComplet) {
     const nom = nomComplet.toLowerCase();
     
-    if (nom.includes('température')) {
+    if (nom.includes('température') && nomComplet.includes('A')) {
         return { type: 'temperature', unite: '°C' };
     }
-    if (nom.includes('humidité')) {
+    if (nom.includes('humidité') && nomComplet.includes('A')) {
         return { type: 'humidite', unite: '%' };
     }
-    if (nom.includes('fumée') || nom.includes('mq-2')) {
+    if (nom.includes('fumée') && nomComplet.includes('A')) {
         return { type: 'fumee', unite: 'PPM' };
     }
-    if (nom.includes('flamme') || nom.includes('infrarouge')) {
+    if (nom.includes('flamme') && nomComplet.includes('A')) {
         return { type: 'flamme', unite: 'bool' };
+    }
+    if (nom.includes('température') && nomComplet.includes('B')) {
+        return { type: 'temperature 2', unite: '°C' };
+    }
+    if (nom.includes('humidité') && nomComplet.includes('B')) {
+        return { type: 'humidite 2', unite: '%' };
+    }
+    if (nom.includes('fumée') && nomComplet.includes('B')) {
+        return { type: 'fumee 2', unite: 'PPM' };
+    }
+    if (nom.includes('flamme') && nomComplet.includes('B')) {
+        return { type: 'flamme 2', unite: 'bool' };
     }
     
     return null;
@@ -171,7 +206,7 @@ async function fetchNodes() {
         // --- Correction 1: Filtrage des Alertes (24h) pour les stats ---
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         // L'API 'alertes/logs' supporte date_debut, ce qui est utilisé ici.
-        const alertLogs = await apiFetch('alertes/logs?limit=10', 'GET', null, '2025-12-05 21:56:28');
+        const alertLogs = await apiFetch('alertes/logs?limit=10', 'GET', null, 'oneDayAgo');
         const alertCount = alertLogs.length;
 
         nodes.forEach(node => {
@@ -252,7 +287,6 @@ async function selectNode(nodeId) {
     try {
         // 1. Récupérer les détails du nœud (pour les métadonnées)
         const nodeDetails = await apiFetch(`noeuds/${nodeId}`);
-        
         // 2. Récupérer les statistiques (Min/Max/Moy)
         const stats = await apiFetch('mesures/statistiques', 'GET', null, { noeud_id: nodeId });
 
@@ -374,8 +408,8 @@ async function selectNode(nodeId) {
         chartContainer.innerHTML = ''; // Vider les anciens graphiques
         historyResults.forEach((history, index) => {
             history.reverse();
-
             const capteur = capteursDuNoeud[index];
+
             
             // Créer un canvas pour chaque capteur
             const chartWrapper = document.createElement('div');

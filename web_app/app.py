@@ -4,8 +4,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 
 # --- Configuration ---
 # L'URL de base de l'API distante fournie dans la documentation
-#API_BASE_URL = "http://10.55.112.100:5000/api"
-API_BASE_URL = "http://192.168.1.100:5000/api"
+API_BASE_URL = "http://10.55.112.100:5000/api"
+#API_BASE_URL = "http://192.168.1.100:5000/api"
 
 app = Flask(__name__)
 # Clé secrète pour la gestion des sessions Flask (doit être changée en production)
@@ -178,4 +178,4 @@ def api_proxy(api_path):
 
 if __name__ == '__main__':
     # Pour le développement, on peut utiliser un port différent si besoin
-    app.run(debug=True, port=5001) # Utilisation du port 5001 pour éviter un conflit avec l'API distante sur 5000
+    app.run(host="0.0.0.0", debug=True, port=5001) # Utilisation du port 5001 pour éviter un conflit avec l'API distante sur 5000
